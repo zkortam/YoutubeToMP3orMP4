@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Converter</title>
+  <style>
+    /* CSS Variables for light mode */
+    :root {
+      --bg-color: #f5f5f5;
+      --container-bg: #ffffff;
+      --text-color: #333333;
+      --accent-color: #4CAF50;
+      --border-color: #cccccc;
+      --input-bg: #ffffff;
+    }
+    /* Override variables in dark mode */
+    body.dark-mode {
+      --bg-color: #1e1e1e;
+      --container-bg: #2e2e2e;
+      --text-color: #f5f5f5;
+      --accent-color: #4CAF50;
+      --border-color: #555555;
+      --input-bg: #3a3a3a;
+    }
+    /* Global styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: var(--container-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+    }
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      box-sizing: border-box;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+    }
+    input[type="radio"] {
+      margin-right: 5px;
+    }
+    .quality-options {
+      margin-top: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--accent-color);
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .mode-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: var(--accent-color);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <!-- Light/Dark Mode Toggle Button -->
+  <button class="mode-toggle" id="modeToggle">Dark Mode</button>
+
+  <div class="container">
+    <h1>YouTube Converter</h1>
+    <!-- YouTube Link Input -->
+    <div class="form-group">
+      <label for="youtubeLink">YouTube Link:</label>
+      <input type="text" id="youtubeLink" placeholder="Enter YouTube URL" />
+    </div>
+    <!-- Format Selection -->
+    <div class="form-group">
+      <label>Choose Format:</label>
+      <label><input type="radio" name="format" value="mp3" checked /> MP3</label>
+      <label><input type="radio" name="format" value="mp4" /> MP4</label>
+    </div>
+    <!-- MP3 Quality Options -->
+    <div class="form-group quality-options" id="mp3QualityOptions">
+      <label for="mp3Quality">Select MP3 Quality:</label>
+      <select id="mp3Quality">
+        <option value="64">64 kbps</option>
+        <option value="128">128 kbps</option>
+        <option value="192">192 kbps</option>
+        <option value="320">320 kbps</option>
+      </select>
+    </div>
+    <!-- MP4 Quality Options (hidden by default) -->
+    <div class="form-group quality-options" id="mp4QualityOptions" style="display: none;">
+      <label for="mp4Quality">Select MP4 Quality:</label>
+      <select id="mp4Quality">
+        <option value="240">240p</option>
+        <option value="360">360p</option>
+        <option value="480">480p</option>
+        <option value="720">720p</option>
+      </select>
+    </div>
+    <!-- Convert & Download Button -->
+    <div class="form-group">
+      <button id="convertButton">Convert &amp; Download</button>
+    </div>
+  </div>
+
+  <script>
+    // Toggle quality options based on the selected format
+    const formatRadios = document.getElementsByName('format');
+    const mp3QualityOptions = document.getElementById('mp3QualityOptions');
+    const mp4QualityOptions = document.getElementById('mp4QualityOptions');
+
+    formatRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'mp3' && radio.checked) {
+          mp3QualityOptions.style.display = 'block';
+          mp4QualityOptions.style.display = 'none';
+        } else if (radio.value === 'mp4' && radio.checked) {
+          mp3QualityOptions.style.display = 'none';
+          mp4QualityOptions.style.display = 'block';
+        }
+      });
+    });
+
+    // Light/Dark mode toggle functionality
+    const modeToggle = document.getElementById('modeToggle');
+    modeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      modeToggle.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+    });
+
+    // Handle Convert & Download button click
+    const convertButton = document.getElementById('convertButton');
+    convertButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      const youtubeLink = document.getElementById('youtubeLink').value;
+      const selectedFormat = document.querySelector('input[name="format"]:checked').value;
+      let quality = '';
+
+      if (selectedFormat === 'mp3') {
+        quality = document.getElementById('mp3Quality').value;
+      } else {
+        quality = document.getElementById('mp4Quality').value;
+      }
+
+      // For demo purposes, we simply alert the choices.
+      // In a real app, you'd send these details to your backend converter.
+      alert(`YouTube Link: ${youtubeLink}\nFormat: ${selectedFormat.toUpperCase()}\nQuality: ${quality}`);
+    });
+  </script>
+</body>
+</html>
