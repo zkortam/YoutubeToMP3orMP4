@@ -107,8 +107,12 @@
     <!-- Format Selection -->
     <div class="form-group">
       <label>Choose Format:</label>
-      <label><input type="radio" name="format" value="mp3" checked /> MP3</label>
-      <label><input type="radio" name="format" value="mp4" /> MP4</label>
+      <label>
+        <input type="radio" name="format" value="mp3" checked /> MP3
+      </label>
+      <label>
+        <input type="radio" name="format" value="mp4" /> MP4
+      </label>
     </div>
     <!-- MP3 Quality Options -->
     <div class="form-group quality-options" id="mp3QualityOptions">
@@ -161,23 +165,58 @@
       modeToggle.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
     });
 
-    // Handle Convert & Download button click
+    // Handle Convert & Download button click with backend integration
     const convertButton = document.getElementById('convertButton');
     convertButton.addEventListener('click', (e) => {
       e.preventDefault();
-      const youtubeLink = document.getElementById('youtubeLink').value;
+      const youtubeLink = document.getElementById('youtubeLink').value.trim();
       const selectedFormat = document.querySelector('input[name="format"]:checked').value;
       let quality = '';
 
+      if (!youtubeLink) {
+        alert('Please enter a valid YouTube URL.');
+        return;
+      }
+
       if (selectedFormat === 'mp3') {
         quality = document.getElementById('mp3Quality').value;
-      } else {
+      } else if (selectedFormat === 'mp4') {
         quality = document.getElementById('mp4Quality').value;
       }
 
-      // For demo purposes, we simply alert the choices.
-      // In a real app, you'd send these details to your backend converter.
-      alert(`YouTube Link: ${youtubeLink}\nFormat: ${selectedFormat.toUpperCase()}\nQuality: ${quality}`);
+      // Make a POST request to the backend conversion endpoint
+      fetch('/convert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          youtubeUrl: youtubeLink,
+          format: selectedFormat,
+          quality: quality
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Conversion failed.');
+        }
+        return response.blob(); // Expecting a file blob as the response
+      })
+      .then(blob => {
+        // Create a temporary download link and click it to start the download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `video.${selectedFormat}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Error during conversion:', error);
+        alert('An error occurred during conversion.');
+      });
     });
   </script>
 </body>
